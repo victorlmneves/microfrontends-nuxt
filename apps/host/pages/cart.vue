@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, markRaw, type Component } from 'vue'
 import { getInstance, createInstance } from '@module-federation/runtime'
+import { loadRemoteStyles } from '~/utils/loadRemoteCSS'
 
 const RemoteShoppingCart = ref<Component | null>(null)
 const error = ref<string | null>(null)
@@ -13,6 +14,10 @@ const loadRemoteComponent = async () => {
 
     try {
         console.log('[MF] Starting remote cart component load...')
+        
+        // Load remote CSS first
+        await loadRemoteStyles('http://localhost:3002')
+        console.log('[MF] CSS loading attempted')
 
         const remoteName = 'remoteCart'
         const remoteEntry = 'http://localhost:3002/remoteEntry.js'
