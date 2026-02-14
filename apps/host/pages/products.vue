@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, type Component } from 'vue'
+import { ref, onMounted, markRaw, type Component } from 'vue'
 import { getInstance, createInstance } from '@module-federation/runtime'
 
 const RemoteProductList = ref<Component | null>(null)
@@ -50,7 +50,7 @@ const loadRemoteComponent = async () => {
         console.log('[MF] Module loaded:', module)
 
         const component = (module as any).default || module
-        RemoteProductList.value = component
+        RemoteProductList.value = markRaw(component)
         isLoading.value = false
 
         console.log('[MF] ✅ Component ready')

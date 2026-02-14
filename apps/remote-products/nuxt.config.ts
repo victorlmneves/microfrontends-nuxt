@@ -28,7 +28,8 @@ export default defineNuxtConfig({
                     exposes: {
                         './ProductList': './components/ProductList.vue'
                     },
-                    shared: {}
+                    shared: {},
+                    runtimePlugins: []
                 }),
                 TopAwait()
             )
