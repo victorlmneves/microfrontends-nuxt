@@ -12,11 +12,13 @@ export default defineNuxtPlugin(() => {
             remotes: [
                 {
                     name: 'remoteProducts',
-                    entry: 'http://localhost:3001/remoteEntry.js'
+                    entry: 'http://localhost:3001/remoteEntry.js',
+                    type: 'esm'
                 },
                 {
                     name: 'remoteCart',
-                    entry: 'http://localhost:3002/remoteEntry.js'
+                    entry: 'http://localhost:3002/remoteEntry.js',
+                    type: 'esm'
                 }
             ]
         })

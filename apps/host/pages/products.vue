@@ -26,7 +26,8 @@ const loadRemoteComponent = async () => {
             instance.registerRemotes([
                 {
                     name: remoteName,
-                    entry: remoteEntry
+                    entry: remoteEntry,
+                    type: 'esm'
                 }
             ])
         } else {
@@ -37,7 +38,8 @@ const loadRemoteComponent = async () => {
                 remotes: [
                     {
                         name: remoteName,
-                        entry: remoteEntry
+                        entry: remoteEntry,
+                        type: 'esm'
                     }
                 ]
             })
