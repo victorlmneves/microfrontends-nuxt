@@ -23,10 +23,10 @@ echo ""
 echo -e "${BLUE}Starting remotes in preview mode...${NC}"
 
 # Remote Products
-cd "$SCRIPT_DIR/apps/remote-products" && npx serve .output/public -l 3001 > /tmp/remote-products.log 2>&1 &
+cd "$SCRIPT_DIR/apps/remote-products" && npx serve .output/public -l 3001 --cors > /tmp/remote-products.log 2>&1 &
 
 # Remote Cart  
-cd "$SCRIPT_DIR/apps/remote-cart" && npx serve .output/public -l 3002 > /tmp/remote-cart.log 2>&1 &
+cd "$SCRIPT_DIR/apps/remote-cart" && npx serve .output/public -l 3002 --cors > /tmp/remote-cart.log 2>&1 &
 
 sleep 2
 

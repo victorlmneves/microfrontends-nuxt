@@ -14,15 +14,6 @@ export default defineNuxtConfig({
         baseURL: '/'
     },
 
-    routeRules: {
-        '/remoteEntry.js': { headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/javascript' } },
-        '/_nuxt/**': { headers: { 'Access-Control-Allow-Origin': '*' } }
-    },
-
-    nitro: {
-        static: true
-    },
-
     hooks: {
         'vite:extendConfig': (config, { isClient }) => {
             if (!isClient) {
@@ -51,6 +42,11 @@ export default defineNuxtConfig({
                 origin: '*',
                 methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
                 credentials: true
+            }
+        },
+        optimizeDeps: {
+            esbuildOptions: {
+                logLevel: 'silent'
             }
         },
         build: {
