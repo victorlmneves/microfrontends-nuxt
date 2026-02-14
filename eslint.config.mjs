@@ -110,12 +110,12 @@ const vueSecurityRules = {
         }
     ],
     // Prevent token exposure in Vue component data
-    'vue/component-tags-order': [
-        'error',
-        {
-            order: ['script', 'template', 'style']
-        }
-    ],
+    // 'vue/component-tags-order': [
+    //     'error',
+    //     {
+    //         order: ['script', 'template', 'style']
+    //     }
+    // ],
     // Prevent token exposure in Vue component props
     'vue/require-prop-types': 'error',
     // Prevent token exposure in Vue component data
@@ -145,7 +145,20 @@ export default [
         files: ['**/*.{ts, js, mjs, vue, json, jsonc}']
     },
     {
-        ignores: ['**/*.d.ts', 'styleDictionary/build/', 'styleDictionary/config.js']
+        ignores: [
+            '**/*.d.ts',
+            'styleDictionary/build/',
+            'styleDictionary/config.js',
+            '**/dist/**',
+            '**/.output/**',
+            '**/.nuxt/**',
+            '**/node_modules/**',
+            '**/__mf__temp/**',
+            '**/.**mf__temp/**',
+            '**/.mf/**',
+            '.turbo/**',
+            '**/*mf*temp*/**'
+        ]
     },
     js.configs.recommended,
     ...tseslint.configs.recommended,
@@ -182,6 +195,13 @@ export default [
                     ts: '@typescript-eslint/parser'
                 }
             }
+        }
+    },
+    // Disable multi-word component names for pages (Nuxt convention)
+    {
+        files: ['**/pages/**/*.vue', '**/layouts/**/*.vue'],
+        rules: {
+            'vue/multi-word-component-names': 'off'
         }
     },
     eslintPluginPrettierRecommended,

@@ -1,0 +1,25 @@
+# Build outputs
+**/dist
+**/.output
+**/.nuxt
+**/node_modules
+
+# Module Federation temporary files
+**/.**mf__temp
+**/__mf__temp
+**/.mf
+**/**mf**temp**
+
+# IDE
+.vscode
+.idea
+
+# OS
+.DS_Store
+
+# Logs
+*.log
+
+# Cache
+.turbo
+.eslintcache

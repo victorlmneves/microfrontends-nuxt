@@ -1,0 +1,54 @@
+// CSS Variables
+:root {
+    // Colors - Primary
+    --color-primary: #667eea;
+    --color-primary-dark: #764ba2;
+
+    // Colors - Neutral
+    --color-white: #ffffff;
+    --color-black: #000000;
+    --color-text: #333333;
+    --color-text-light: #666666;
+    --color-text-muted: #888888;
+    --color-border: #e0e0e0;
+    --color-background: #f8f9fa;
+    --color-background-light: #f5f7fa;
+    --color-background-gradient: #c3cfe2;
+
+    // Shadows
+    --shadow-sm: 0 2px 4px rgba(102, 126, 234, 0.3);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 12px 20px rgba(0, 0, 0, 0.15);
+    --shadow-hover: 0 4px 8px rgba(102, 126, 234, 0.4);
+
+    // Spacing
+    --spacing-xs: 0.5rem;
+    --spacing-sm: 0.75rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+
+    // Border Radius
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 25px;
+
+    // Typography
+    --font-size-xs: 0.9rem;
+    --font-size-sm: 1rem;
+    --font-size-md: 1.25rem;
+    --font-size-lg: 1.5rem;
+    --font-size-xl: 5rem;
+
+    --font-weight-normal: 400;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+
+    // Transitions
+    --transition-fast: 0.2s ease;
+    --transition-normal: 0.3s ease;
+
+    // Grid
+    --grid-gap: var(--spacing-xl);
+    --grid-min-width: 280px;
+}

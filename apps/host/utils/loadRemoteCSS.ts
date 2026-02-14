@@ -40,7 +40,7 @@ export async function loadRemoteStyles(remoteUrl: string): Promise<void> {
         const html = await response.text()
 
         // Extract CSS filenames using a simpler pattern that matches style.xxxxx.css
-        const cssPattern = /\b(style\.[a-zA-Z0-9_-]+\.css)\b/g
+        const cssPattern = /\b(style\.[\w-]+\.css)\b/g
         const matches = html.match(cssPattern) || []
         
         // Build full URLs and remove duplicates

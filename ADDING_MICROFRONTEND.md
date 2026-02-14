@@ -29,12 +29,12 @@ Create `apps/remote-reviews/package.json`:
         "postinstall": "nuxt prepare"
     },
     "dependencies": {
-        "nuxt": "^3.14.159",
-        "vue": "^3.5.13"
+        "nuxt": "3.14.159",
+        "vue": "3.5.13"
     },
     "devDependencies": {
-        "@module-federation/vite": "^1.0.10",
-        "@nuxt/devtools": "^1.6.4"
+        "@module-federation/vite": "1.0.10",
+        "@nuxt/devtools": "1.6.4"
     }
 }
 ```

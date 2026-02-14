@@ -10,7 +10,28 @@
         "forceConsistentCasingInFileNames": true,
         "resolveJsonModule": true,
         "isolatedModules": true,
-        "noEmit": true
+        "noEmit": true,
+        "lib": ["ESNext", "DOM", "DOM.Iterable"],
+        "allowJs": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noFallthroughCasesInSwitch": true,
+        "allowSyntheticDefaultImports": true,
+        "baseUrl": ".",
+        "paths": {
+            "~/*": ["./apps/*/"],
+            "@/*": ["./apps/*/"],
+            "#app": ["./node_modules/nuxt/dist/app"]
+        },
+        "types": ["node", "@nuxt/types"]
     },
-    "exclude": ["node_modules", ".nuxt", ".output", "dist"]
+    "include": [
+        "apps/**/*.ts",
+        "apps/**/*.vue",
+        "apps/**/*.d.ts",
+        "packages/**/*.ts",
+        "packages/**/*.vue",
+        "packages/**/*.d.ts"
+    ],
+    "exclude": ["node_modules", ".nuxt", ".output", "dist", ".turbo"]
 }

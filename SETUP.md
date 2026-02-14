@@ -17,8 +17,8 @@
 {
   "dependencies": {
     "@module-federation/runtime": "2.0.1",
-    "nuxt": "^3.14.159",
-    "vue": "^3.5.13"
+    "nuxt": "3.14.159",
+    "vue": "3.5.13"
   }
 }
 ```

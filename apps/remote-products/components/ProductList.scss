@@ -1,0 +1,110 @@
+@use '../styles/variables' as *;
+
+// Block: product-list
+.product-list {
+    width: 100%;
+
+    // Element: badge
+    &__badge {
+        background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+        color: var(--color-white);
+        padding: var(--spacing-sm) var(--spacing-lg);
+        border-radius: var(--radius-lg);
+        display: inline-block;
+        margin-bottom: var(--spacing-xl);
+        font-weight: var(--font-weight-semibold);
+        box-shadow: var(--shadow-sm);
+    }
+
+    // Element: grid
+    &__grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(var(--grid-min-width), 1fr));
+        gap: var(--grid-gap);
+    }
+
+    // Element: card
+    &__card {
+        background: var(--color-white);
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        box-shadow: var(--shadow-md);
+        transition: all var(--transition-normal);
+        border: 1px solid var(--color-border);
+
+        // Modifier: hover state
+        &:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+        }
+    }
+
+    // Element: card-image
+    &__card-image {
+        background: linear-gradient(135deg, var(--color-background-light) 0%, var(--color-background-gradient) 100%);
+        height: 180px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: var(--font-size-xl);
+    }
+
+    // Element: card-info
+    &__card-info {
+        padding: var(--spacing-lg);
+    }
+
+    // Element: card-name
+    &__card-name {
+        margin: 0 0 var(--spacing-xs) 0;
+        color: var(--color-text);
+        font-size: var(--font-size-md);
+        font-weight: var(--font-weight-semibold);
+    }
+
+    // Element: card-category
+    &__card-category {
+        margin: 0 0 var(--spacing-md) 0;
+        color: var(--color-text-muted);
+        font-size: var(--font-size-xs);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    // Element: card-footer
+    &__card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: var(--spacing-md);
+    }
+
+    // Element: card-price
+    &__card-price {
+        font-size: var(--font-size-lg);
+        font-weight: var(--font-weight-bold);
+        color: var(--color-primary);
+    }
+
+    // Element: add-btn
+    &__add-btn {
+        background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+        color: var(--color-white);
+        border: none;
+        padding: var(--spacing-sm) var(--spacing-lg);
+        border-radius: var(--radius-lg);
+        font-weight: var(--font-weight-semibold);
+        cursor: pointer;
+        transition: all var(--transition-normal);
+        box-shadow: var(--shadow-sm);
+
+        &:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        &:active {
+            transform: translateY(0);
+        }
+    }
+}

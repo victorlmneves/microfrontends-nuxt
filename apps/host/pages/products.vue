@@ -14,7 +14,7 @@ const loadRemoteComponent = async () => {
 
     try {
         console.log('[MF] Starting remote component load...')
-        
+
         // Load remote CSS first
         await loadRemoteStyles('http://localhost:3001')
         console.log('[MF] CSS loading attempted')
@@ -54,7 +54,7 @@ const loadRemoteComponent = async () => {
         const module = await instance.loadRemote(`${remoteName}/ProductList`)
         console.log('[MF] Module loaded:', module)
 
-        const component = (module as any).default || module
+        const component = (module as { default?: unknown }).default || module
         RemoteProductList.value = markRaw(component)
         isLoading.value = false
 
@@ -96,7 +96,7 @@ onMounted(() => {
         </div>
 
         <!-- Success State -->
-        <component v-else-if="RemoteProductList" :is="RemoteProductList" />
+        <component :is="RemoteProductList" v-else-if="RemoteProductList" />
     </div>
 </template>
 

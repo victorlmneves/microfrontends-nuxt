@@ -1,0 +1,19 @@
+{
+    "semi": false,
+    "singleQuote": true,
+    "tabWidth": 4,
+    "trailingComma": "none",
+    "printWidth": 140,
+    "arrowParens": "always",
+    "endOfLine": "lf",
+    "bracketSpacing": true,
+    "vueIndentScriptAndStyle": false,
+    "overrides": [
+        {
+            "files": ["*.vue"],
+            "options": {
+                "parser": "vue"
+            }
+        }
+    ]
+}
