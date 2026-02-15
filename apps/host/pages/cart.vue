@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, markRaw, type Component } from 'vue'
 import { getInstance, createInstance } from '@module-federation/runtime'
-import { loadRemoteStyles } from '~/utils/loadRemoteCSS'
+import { loadRemoteStyles } from '../utils/loadRemoteCSS'
 
 const RemoteShoppingCart = ref<Component | null>(null)
 const error = ref<string | null>(null)
@@ -13,10 +13,13 @@ const loadRemoteComponent = async () => {
     }
 
     try {
+        // eslint-disable-next-line no-console
         console.log('[MF] Starting remote cart component load...')
 
         // Load remote CSS first
         await loadRemoteStyles('http://localhost:3002')
+
+        // eslint-disable-next-line no-console
         console.log('[MF] CSS loading attempted')
 
         const remoteName = 'remoteCart'
@@ -26,6 +29,7 @@ const loadRemoteComponent = async () => {
         let instance = getInstance()
 
         if (instance) {
+            // eslint-disable-next-line no-console
             console.log('[MF] Using existing instance')
 
             instance.registerRemotes([
@@ -36,6 +40,7 @@ const loadRemoteComponent = async () => {
                 }
             ])
         } else {
+            // eslint-disable-next-line no-console
             console.log('[MF] Creating new instance')
 
             instance = createInstance({
@@ -50,14 +55,18 @@ const loadRemoteComponent = async () => {
             })
         }
 
+        // eslint-disable-next-line no-console
         console.log('[MF] Loading remote module...')
         const module = await instance.loadRemote(`${remoteName}/ShoppingCart`)
+
+        // eslint-disable-next-line no-console
         console.log('[MF] Module loaded:', module)
 
         const component = (module as { default?: unknown }).default || module
         RemoteShoppingCart.value = markRaw(component)
         isLoading.value = false
 
+        // eslint-disable-next-line no-console
         console.log('[MF] ✅ Component ready')
     } catch (e: unknown) {
         const message = e instanceof Error ? e.message : 'Failed to load remote module'
