@@ -6,7 +6,7 @@ export default defineNuxtConfig({
 
     devtools: { enabled: true },
 
-    ssr: false,
+    ssr: true,
 
     vite: {
         server: {
