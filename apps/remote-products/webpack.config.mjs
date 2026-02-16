@@ -1,13 +1,15 @@
-const { ModuleFederationPlugin } = require('webpack').container
-const { VueLoaderPlugin } = require('vue-loader')
-const path = require('path')
+import webpackPkg from 'webpack'
+const { container: _container } = webpackPkg
+const { ModuleFederationPlugin } = _container
+import { VueLoaderPlugin } from 'vue-loader'
+import path from 'path'
 
-module.exports = {
+export default {
     mode: 'development',
     entry: './app.vue',
     target: 'web',
     output: {
-        path: path.resolve(__dirname, 'dist'),
+        path: path.resolve(path.dirname(new URL(import.meta.url).pathname), 'dist'),
         filename: '[name].js',
         library: { type: 'umd', name: 'remoteProducts' },
         publicPath: 'auto',
@@ -65,7 +67,7 @@ module.exports = {
         hot: true,
         allowedHosts: 'all',
         static: {
-            directory: path.resolve(__dirname, 'dist')
+            directory: path.resolve(path.dirname(new URL(import.meta.url).pathname), 'dist')
         }
     }
 }

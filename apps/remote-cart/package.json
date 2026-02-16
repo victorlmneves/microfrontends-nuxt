@@ -5,9 +5,9 @@
     "type": "module",
     "scripts": {
         "dev": "nuxt dev --port 3002",
-        "dev:webpack": "webpack serve --config webpack.config.cjs --port 3002 --open",
+        "dev:webpack": "webpack serve --config webpack.config.mjs --port 3002 --open",
         "build:nuxt": "nuxt build",
-        "build:webpack": "webpack --config webpack.config.cjs",
+        "build:webpack": "webpack --config webpack.config.mjs",
         "build": "pnpm run build:nuxt && pnpm run build:webpack && cp -R .nuxt/dist/client/_nuxt .output/public/ && if [ -d .nuxt/dist/client/_nuxt/builds ]; then cp -R .nuxt/dist/client/_nuxt/builds .output/public/_nuxt/; fi",
         "start:webpack": "node .output/webpack/server.js",
         "generate": "nuxt generate",

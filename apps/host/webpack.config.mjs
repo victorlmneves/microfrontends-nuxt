@@ -1,15 +1,17 @@
-const { ModuleFederationPlugin } = require('webpack').container
-const { VueLoaderPlugin } = require('vue-loader')
-const path = require('path')
+import webpackPkg from 'webpack'
+const { container: _container } = webpackPkg
+const { ModuleFederationPlugin } = _container
+import { VueLoaderPlugin } from 'vue-loader'
+import path from 'path'
 
-module.exports = {
+export default {
     mode: 'development',
     entry: './app.vue',
     target: 'web',
     output: {
-        path: path.resolve(__dirname, 'dist'),
+        path: path.resolve(path.dirname(new URL(import.meta.url).pathname), 'dist'),
         filename: '[name].js',
-        library: { type: 'umd', name: 'remoteCart' },
+        library: { type: 'umd', name: 'host' },
         publicPath: 'auto',
         clean: true
     },
@@ -47,10 +49,10 @@ module.exports = {
     plugins: [
         new VueLoaderPlugin(),
         new ModuleFederationPlugin({
-            name: 'remoteCart',
-            filename: 'remoteEntry.js',
-            exposes: {
-                './ShoppingCart': './components/ShoppingCart.vue'
+            name: 'host',
+            remotes: {
+                remoteProducts: 'remoteProducts@http://localhost:3001/remoteEntry.js',
+                remoteCart: 'remoteCart@http://localhost:3002/remoteEntry.js'
             },
             shared: {
                 vue: { singleton: true, requiredVersion: false }
@@ -61,11 +63,11 @@ module.exports = {
         headers: {
             'Access-Control-Allow-Origin': '*'
         },
-        port: 3002,
+        port: 3000,
         hot: true,
         allowedHosts: 'all',
         static: {
-            directory: path.resolve(__dirname, 'dist')
+            directory: path.resolve(path.dirname(new URL(import.meta.url).pathname), 'dist')
         }
     }
 }
