@@ -23,26 +23,26 @@ trap cleanup SIGINT SIGTERM
 echo "🧹 Clearing cache..."
 rm -rf "$SCRIPT_DIR/apps/*/.nuxt"
 
-# Iniciar remote-products na porta 3001
-echo -e "${BLUE}Starting remote-products on port 3001...${NC}"
-cd "$SCRIPT_DIR/apps/remote-products" && pnpm dev > /tmp/remote-products.log 2>&1 &
+echo -e "${BLUE}Starting remote-products (webpack) on port 3001...${NC}"
+cd "$SCRIPT_DIR/apps/remote-products" && pnpm dev:webpack > /tmp/remote-products.log 2>&1 &
 PRODUCTS_PID=$!
+cd "$SCRIPT_DIR"
 
 # Aguardar um pouco
 sleep 2
 
-# Iniciar remote-cart na porta 3002
-echo -e "${BLUE}Starting remote-cart on port 3002...${NC}"
-cd "$SCRIPT_DIR/apps/remote-cart" && pnpm dev > /tmp/remote-cart.log 2>&1 &
+echo -e "${BLUE}Starting remote-cart (webpack) on port 3002...${NC}"
+cd "$SCRIPT_DIR/apps/remote-cart" && pnpm dev:webpack > /tmp/remote-cart.log 2>&1 &
 CART_PID=$!
+cd "$SCRIPT_DIR"
 
 # Aguardar um pouco
 sleep 2
 
-# Iniciar host na porta 3000
 echo -e "${BLUE}Starting host on port 3000...${NC}"
 cd "$SCRIPT_DIR/apps/host" && pnpm dev > /tmp/host.log 2>&1 &
 HOST_PID=$!
+cd "$SCRIPT_DIR"
 
 sleep 3
 

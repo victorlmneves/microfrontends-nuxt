@@ -14,7 +14,7 @@ const loadRemoteComponent = async () => {
 
     try {
         // eslint-disable-next-line no-console
-        console.log('[MF] Starting remote cart component load...')
+        console.log('[MF] Starting remote component load...')
 
         // Load remote CSS first
         await loadRemoteStyles('http://localhost:3002')
@@ -35,8 +35,7 @@ const loadRemoteComponent = async () => {
             instance.registerRemotes([
                 {
                     name: remoteName,
-                    entry: remoteEntry,
-                    type: 'esm'
+                    entry: remoteEntry
                 }
             ])
         } else {
@@ -48,8 +47,7 @@ const loadRemoteComponent = async () => {
                 remotes: [
                     {
                         name: remoteName,
-                        entry: remoteEntry,
-                        type: 'esm'
+                        entry: remoteEntry
                     }
                 ]
             })
@@ -63,7 +61,7 @@ const loadRemoteComponent = async () => {
         console.log('[MF] Module loaded:', module)
 
         const component = (module as { default?: unknown }).default || module
-        RemoteShoppingCart.value = markRaw(component)
+        RemoteShoppingCart.value = markRaw(component as object)
         isLoading.value = false
 
         // eslint-disable-next-line no-console

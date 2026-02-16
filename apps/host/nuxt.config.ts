@@ -6,6 +6,8 @@ export default defineNuxtConfig({
 
     devtools: { enabled: true },
 
+    builder: 'webpack',
+
     ssr: true,
 
     vite: {

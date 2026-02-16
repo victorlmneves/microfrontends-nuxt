@@ -16,7 +16,9 @@ export default defineNuxtConfig({
 
     hooks: {
         'vite:extendConfig': (config, { isClient }) => {
-            if (!isClient) return
+            if (!isClient) {
+                return
+            }
 
             config.plugins = config.plugins || []
             config.plugins.unshift(
@@ -45,7 +47,8 @@ export default defineNuxtConfig({
         optimizeDeps: {
             esbuildOptions: {
                 logLevel: 'silent'
-            }
+            },
+            include: ['vue']
         },
         build: {
             target: 'esnext',
@@ -57,9 +60,6 @@ export default defineNuxtConfig({
                     format: 'es'
                 }
             }
-        },
-        optimizeDeps: {
-            include: ['vue']
         },
         resolve: {
             dedupe: ['vue']
