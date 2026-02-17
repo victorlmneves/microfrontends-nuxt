@@ -173,25 +173,24 @@ This starts:
 
 ## CORS Configuration
 
-### Remotes (required)
+### Remotes (webpack devServer)
 
-```typescript
-routeRules: {
-  '/remoteEntry.js': {
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Content-Type': 'application/javascript'
+```javascript
+// webpack.client.mjs
+export default {
+    devServer: {
+        port: 3001,
+        hot: true,
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
+            'Access-Control-Allow-Headers': 'X-Requested-With, content-type, Authorization'
+        }
     }
-  },
-  '/_nuxt/**': {
-    headers: {
-      'Access-Control-Allow-Origin': '*'
-    }
-  },
 }
 ```
 
-### Host
+### Host (Nuxt)
 
 ```typescript
 vite: {

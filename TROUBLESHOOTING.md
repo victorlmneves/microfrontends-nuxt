@@ -309,9 +309,10 @@ If specific package is missing:
 cd apps/host
 pnpm add @module-federation/runtime
 
-# For remotes
+# For remotes (webpack dependencies)
 cd apps/remote-products
-pnpm add -D @module-federation/vite vite-plugin-top-level-await
+pnpm add -D webpack webpack-cli webpack-dev-server
+pnpm add -D @module-federation/enhanced
 ```
 
 ---
@@ -352,31 +353,27 @@ rm -rf apps/*/dist
 
 ### "Failed to resolve import"
 
-**Problem:** Vite trying to resolve remote import at build time.
+**Problem:** Webpack trying to resolve dynamic import incorrectly.
 
-**Solution:** Use `/* @vite-ignore */` comment:
-
-```typescript
-const module = await import(
-    /* @vite-ignore */
-    '/remote-products/remoteEntry.js'
-)
-```
-
-Or better, use `loadRemote()`:
+**Solution:** Use `loadRemote()`:
 
 ```typescript
 const module = await instance.loadRemote('remoteProducts/ProductList')
 ```
 
-### "Rollup failed to resolve import"
+### "Module not found"
 
-**Problem:** External modules not excluded from bundle.
+**Problem:** Webpack cannot find external modules.
 
 **Solution:** Add to host's `nuxt.config.ts`:
 
 ```typescript
 export default defineNuxtConfig({
+    webpack: {
+        externals: {
+            '@module-federation/node': 'commonjs @module-federation/node'
+        }
+    },
     vite: {
         optimizeDeps: {
             exclude: ['@module-federation/runtime']
@@ -407,9 +404,9 @@ This builds remotes once and runs them in preview mode (faster).
 
 **Solution:**
 
-1. Use `dev:watch` (remotes don't need HMR)
-2. Reduce number of watched files
-3. Exclude large directories from Vite config
+1. Use `./dev-all.sh` for individual webpack dev servers
+2. Each remote has its own webpack-dev-server with fast HMR
+3. Host uses Nuxt's built-in HMR
 
 ---
 
@@ -505,11 +502,10 @@ Run through this list when debugging:
 - [ ] Is remote running? (`curl http://localhost:3001`)
 - [ ] Is remoteEntry.js accessible? (`curl http://localhost:3001/remoteEntry.js`)
 - [ ] Does remoteEntry.js return JavaScript? (not HTML)
-- [ ] Are CORS headers set? (check Network tab)
+- [ ] Are CORS headers set in webpack devServer? (check Network tab)
 - [ ] Is Federation Runtime initialized? (check plugin)
-- [ ] Is `shared: {}` empty? (check all configs)
-- [ ] Is `nitro.static: true` in remotes?
-- [ ] Are `routeRules` at root level? (not in nitro)
+- [ ] Is Vue shared as singleton? (check webpack configs)
+- [ ] Are webpack dev servers running on correct ports?
 - [ ] No TypeScript errors blocking build?
 - [ ] Browser console clear of errors?
 - [ ] Network tab shows successful fetches?

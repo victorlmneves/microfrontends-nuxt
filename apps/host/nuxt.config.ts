@@ -10,6 +10,7 @@ export default defineNuxtConfig({
 
     ssr: true,
 
+    // WIP: Webpack externals for SSR - kept for future server-side Module Federation
     webpack: {
         externals: {
             '@module-federation/node': 'commonjs @module-federation/node'

@@ -222,8 +222,6 @@ export default {
 
 ```bash
 ./dev-all.sh
-# or
-pnpm run dev:all
 ```
 
 **What happens:**
@@ -241,7 +239,12 @@ pnpm run dev:all
 ### Production Build
 
 ```bash
-pnpm run build:all
+# Build remotes
+cd apps/remote-products && pnpm build:webpack
+cd apps/remote-cart && pnpm build:webpack
+
+# Build host
+cd apps/host && pnpm build
 ```
 
 **Build steps:**
@@ -249,17 +252,7 @@ pnpm run build:all
 1. Remotes: `webpack --config webpack.client.mjs` → `dist/remoteEntry.js`
 2. Host: `nuxt build` → `.output/`
 3. Deploy remotes to CDN/static hosting
-4. Update remote URLs in host configuration
-
-All apps in dev mode with hot reload (slower startup).
-
-### Production Test
-
-```bash
-./test-build.sh
-```
-
-Builds and serves everything in production mode.
+4. Update remote URLs in host configuration to production URLs
 
 ---
 
@@ -267,20 +260,20 @@ Builds and serves everything in production mode.
 
 ### ✅ Must Do
 
-1. **Empty shared config**: `shared: {}` in all apps
-2. **CORS at root level**: `routeRules` not inside `nitro`
-3. **Static preset for remotes**: `nitro: { static: true }`
-4. **Copy remoteEntry.js**: After build, copy to `.output/public/`
-5. **Runtime in host only**: `@module-federation/runtime` only in host
-6. **Vite plugin in remotes only**: `@module-federation/vite` only in remotes
+1. **Vue singleton in shared**: `shared: { vue: { singleton: true } }` in all webpack configs
+2. **CORS in webpack devServer**: `headers: { 'Access-Control-Allow-Origin': '*' }`
+3. **Webpack for remotes**: Standalone webpack with @module-federation/enhanced
+4. **Runtime in host only**: `@module-federation/runtime` only in host
+5. **Enhanced plugin in remotes**: `@module-federation/enhanced/webpack` in remotes
+6. **Client-only loading**: Use `onMounted()` to load remotes
 
 ### ❌ Don't Do
 
-1. ~~Don't use shared dependencies~~ (causes crashes)
-2. ~~Don't use Vite plugin in host~~ (conflicts with runtime)
-3. ~~Don't put routeRules inside nitro~~ (must be at root)
-4. ~~Don't use node-server preset for remotes~~ (use static)
-5. ~~Don't use direct imports~~ (`import('remote/Component')` - use `loadRemote()`)
+1. ~~Don't skip Vue singleton~~ (causes version conflicts)
+2. ~~Don't use @module-federation/vite~~ (replaced with webpack)
+3. ~~Don't load remotes during SSR~~ (use client-only pattern)
+4. ~~Don't use direct dynamic imports~~ (use `loadRemote()`)
+5. ~~Don't forget CORS headers~~ (webpack devServer needs them)
 
 ---
 

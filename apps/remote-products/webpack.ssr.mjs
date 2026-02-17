@@ -1,3 +1,6 @@
+// WIP: SSR build configuration for Module Federation
+// Currently not used - client-only loading is active
+// Kept for future SSR implementation when rendering remotes server-side
 import { ModuleFederationPlugin } from '@module-federation/enhanced/webpack'
 import { VueLoaderPlugin } from 'vue-loader'
 import path from 'path'

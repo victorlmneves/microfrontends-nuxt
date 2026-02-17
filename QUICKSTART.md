@@ -23,51 +23,59 @@ This installs all dependencies for the entire monorepo.
 
 ### 3️⃣ Start the Development Environment
 
-**Option A: Hybrid Mode - Recommended**
+**Option A: All Development Servers (Recommended)**
 
-Remotes in preview (built), host in dev (hot reload):
+Start all servers with webpack dev servers for remotes:
 
 ```bash
-pnpm run dev:watch
+./dev-all.sh
 ```
 
-**Option B: All in Dev Mode**
+This starts:
 
-Everything with hot reload (slower startup):
+- Remote Products: webpack-dev-server on port 3001
+- Remote Cart: webpack-dev-server on port 3002
+- Host: nuxt dev on port 3000
 
-```bash
-pnpm run dev
-```
+**Option B: Individual Servers**
 
-**Option C: Test Production Build**
-
-Build everything and run in production mode:
+Start each server manually:
 
 ```bash
-./test-build.sh
+# Terminal 1 - Remote Products
+cd apps/remote-products && pnpm dev:webpack
+
+# Terminal 2 - Remote Cart
+cd apps/remote-cart && pnpm dev:webpack
+
+# Terminal 3 - Host
+cd apps/host && pnpm dev
 ```
 
 ### 4️⃣ Open Your Browser
 
 - **Host Application**: http://localhost:3000
-  - Home page: http://localhost:3000
-  - Products page: http://localhost:3000/products
-  - Cart page: http://localhost:3000/cart
+    - Home page: http://localhost:3000
+    - Products page: http://localhost:3000/products
+    - Cart page: http://localhost:3000/cart
 - **Products Remote (standalone)**: http://localhost:3001
 - **Cart Remote (standalone)**: http://localhost:3002
 
 ## 🎯 What You'll See
 
 ### At localhost:3000 (Host App)
+
 - **Home page** - Overview of the microfrontends architecture
 - **Products page** - Product catalog loaded from remote-products microfrontend
 - **Cart page** - Shopping cart loaded from remote-cart microfrontend
 
 ### At localhost:3001 (Products Remote)
+
 - Standalone products application
 - Can run independently without the host
 
 ### At localhost:3002 (Cart Remote)
+
 - Standalone cart application
 - Can run independently without the host
 
@@ -88,16 +96,24 @@ Build everything and run in production mode:
 ## ⚡ Common Commands
 
 ```bash
-# Start all apps
-pnpm run dev
+# Start all servers
+./dev-all.sh
 
-# Build all apps
-pnpm run build
+# Start individual servers
+cd apps/remote-products && pnpm dev:webpack  # Port 3001
+cd apps/remote-cart && pnpm dev:webpack      # Port 3002
+cd apps/host && pnpm dev                      # Port 3000
 
-# Work on individual apps
-cd apps/host && pnpm run dev
-cd apps/remote-products && pnpm run dev
-cd apps/remote-cart && pnpm run dev
+# Build remotes
+cd apps/remote-products && pnpm build:webpack
+cd apps/remote-cart && pnpm build:webpack
+
+# Build host
+cd apps/host && pnpm build
+
+# Kill all processes and clean
+pkill -9 -f "webpack" && pkill -9 -f "nuxt"
+rm -rf apps/*/dist apps/*/.nuxt
 ```
 
 ## 🔍 Project Structure

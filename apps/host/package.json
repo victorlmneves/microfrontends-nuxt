@@ -4,11 +4,7 @@
     "private": true,
     "scripts": {
         "dev": "nuxt dev --port 3000",
-        "dev:webpack": "webpack serve --config webpack.config.mjs --port 3000 --open",
-        "build:nuxt": "nuxt build",
-        "build:webpack": "webpack --config webpack.config.mjs",
-        "build": "pnpm run build:nuxt && pnpm run build:webpack && cp -R .nuxt/dist/client/_nuxt .output/public/ && if [ -d .nuxt/dist/client/_nuxt/builds ]; then cp -R .nuxt/dist/client/_nuxt/builds .output/public/_nuxt/; fi",
-        "start:webpack": "node .output/webpack/server.js",
+        "build": "nuxt build",
         "generate": "nuxt generate",
         "preview": "nuxt preview",
         "postinstall": "nuxt prepare",
@@ -27,9 +23,6 @@
         "@nuxt/devtools": "1.6.4",
         "@nuxt/webpack-builder": "4.3.1",
         "typescript": "5.6.3",
-        "vue-tsc": "2.1.10",
-        "webpack": "5.91.0",
-        "webpack-cli": "5.1.4",
-        "webpack-dev-server": "5.0.4"
+        "vue-tsc": "2.1.10"
     }
 }
