@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, markRaw, type Component } from 'vue'
-import { getInstance, createInstance } from '@module-federation/runtime'
+import { loadRemoteComponentUniversal } from '../utils/loadRemoteUniversal'
 import { loadRemoteStyles } from '../utils/loadRemoteCSS'
 
 const RemoteProductList = ref<Component | null>(null)
@@ -8,10 +8,6 @@ const error = ref<string | null>(null)
 const isLoading = ref(true)
 
 const loadRemoteComponent = async () => {
-    if (typeof window === 'undefined') {
-        throw new Error('Browser only')
-    }
-
     try {
         // eslint-disable-next-line no-console
         console.log('[MF] Starting remote component load...')
@@ -25,40 +21,7 @@ const loadRemoteComponent = async () => {
         const remoteName = 'remoteProducts'
         const remoteEntry = 'http://localhost:3001/remoteEntry.js'
 
-        // Get or create Federation Runtime instance
-        let instance = getInstance()
-
-        if (instance) {
-            // eslint-disable-next-line no-console
-            console.log('[MF] Using existing instance')
-
-            instance.registerRemotes([
-                {
-                    name: remoteName,
-                    entry: remoteEntry
-                }
-            ])
-        } else {
-            // eslint-disable-next-line no-console
-            console.log('[MF] Creating new instance')
-
-            instance = createInstance({
-                name: 'host',
-                remotes: [
-                    {
-                        name: remoteName,
-                        entry: remoteEntry
-                    }
-                ]
-            })
-        }
-
-        // eslint-disable-next-line no-console
-        console.log('[MF] Loading remote module...')
-        const module = await instance.loadRemote(`${remoteName}/ProductList`)
-
-        // eslint-disable-next-line no-console
-        console.log('[MF] Module loaded:', module)
+        const module = await loadRemoteComponentUniversal(remoteName, remoteEntry, 'ProductList')
 
         const component = (module as { default?: unknown }).default || module
         RemoteProductList.value = markRaw(component as object)
@@ -81,6 +44,7 @@ const retry = () => {
     loadRemoteComponent()
 }
 
+// Client-only loading
 onMounted(() => {
     loadRemoteComponent()
 })

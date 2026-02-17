@@ -15,6 +15,12 @@
         "type-check": "turbo run type-check",
         "clean": "turbo run clean && rm -rf node_modules"
     },
+    "engines": {
+        "node": ">=18.0.0",
+        "pnpm": ">=8.0.0"
+    },
+    "packageManager": "pnpm@8.15.0",
+    "dependencies": {},
     "devDependencies": {
         "@nuxt/eslint": "1.15.1",
         "@typescript-eslint/eslint-plugin": "8.55.0",
@@ -33,11 +39,7 @@
         "typescript": "5.6.3",
         "typescript-eslint": "8.55.0",
         "vite-plugin-top-level-await": "1.6.0",
-        "vue-eslint-parser": "10.4.0"
-    },
-    "engines": {
-        "node": ">=18.0.0",
-        "pnpm": ">=8.0.0"
-    },
-    "packageManager": "pnpm@8.15.0"
+        "vue-eslint-parser": "10.4.0",
+        "@module-federation/node": "2.7.32"
+    }
 }

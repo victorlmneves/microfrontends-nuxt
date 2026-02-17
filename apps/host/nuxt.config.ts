@@ -10,6 +10,12 @@ export default defineNuxtConfig({
 
     ssr: true,
 
+    webpack: {
+        externals: {
+            '@module-federation/node': 'commonjs @module-federation/node'
+        }
+    },
+
     vite: {
         server: {
             fs: {

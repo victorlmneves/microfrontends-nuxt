@@ -5,12 +5,12 @@ import path from 'path'
 export default {
     mode: 'development',
     entry: './app.vue',
-    target: 'web',
+    target: 'node',
     output: {
         path: path.resolve(path.dirname(new URL(import.meta.url).pathname), 'dist'),
-        filename: '[name].js',
+        filename: '[name].ssr.js',
         publicPath: 'http://localhost:3002/',
-        clean: true
+        clean: false
     },
     resolve: {
         extensions: ['.js', '.ts', '.mjs', '.json', '.vue']
@@ -47,7 +47,7 @@ export default {
         new VueLoaderPlugin(),
         new ModuleFederationPlugin({
             name: 'remoteCart',
-            filename: 'remoteEntry.js',
+            filename: 'remoteEntry.ssr.js',
             exposes: {
                 './ShoppingCart': './components/ShoppingCart.vue'
             },
@@ -55,18 +55,8 @@ export default {
                 vue: { singleton: true, requiredVersion: false }
             },
             runtimePlugins: [],
-            dts: false
+            dts: false,
+            runtime: false
         })
-    ],
-    devServer: {
-        headers: {
-            'Access-Control-Allow-Origin': '*'
-        },
-        port: 3002,
-        hot: true,
-        allowedHosts: 'all',
-        static: {
-            directory: path.resolve(path.dirname(new URL(import.meta.url).pathname), 'dist')
-        }
-    }
+    ]
 }

@@ -10,7 +10,7 @@ export default {
         path: path.resolve(path.dirname(new URL(import.meta.url).pathname), 'dist'),
         filename: '[name].js',
         publicPath: 'http://localhost:3002/',
-        clean: true
+        clean: false
     },
     resolve: {
         extensions: ['.js', '.ts', '.mjs', '.json', '.vue']

@@ -2,15 +2,15 @@
 
 echo "🚀 Starting all dev servers..."
 
-# Cores para output
+# Colors for output
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Obter diretório do script
+# Get current directory of the script
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-# Função para cleanup
+# Function for cleanup
 cleanup() {
     echo -e "\n🛑 Stopping all servers..."
     kill $(jobs -p) 2>/dev/null
@@ -19,7 +19,7 @@ cleanup() {
 
 trap cleanup SIGINT SIGTERM
 
-# Limpar cache
+# Clear cache
 echo "🧹 Clearing cache..."
 rm -rf "$SCRIPT_DIR/apps/*/.nuxt"
 
@@ -28,7 +28,7 @@ cd "$SCRIPT_DIR/apps/remote-products" && pnpm dev:webpack > /tmp/remote-products
 PRODUCTS_PID=$!
 cd "$SCRIPT_DIR"
 
-# Aguardar um pouco
+# Wait a bit
 sleep 2
 
 echo -e "${BLUE}Starting remote-cart (webpack) on port 3002...${NC}"
@@ -36,7 +36,7 @@ cd "$SCRIPT_DIR/apps/remote-cart" && pnpm dev:webpack > /tmp/remote-cart.log 2>&
 CART_PID=$!
 cd "$SCRIPT_DIR"
 
-# Aguardar um pouco
+# Wait a bit
 sleep 2
 
 echo -e "${BLUE}Starting host on port 3000...${NC}"
@@ -44,6 +44,7 @@ cd "$SCRIPT_DIR/apps/host" && pnpm dev > /tmp/host.log 2>&1 &
 HOST_PID=$!
 cd "$SCRIPT_DIR"
 
+# Wait a bit
 sleep 3
 
 echo ""
@@ -62,5 +63,4 @@ echo ""
 echo "⌨️  Press Ctrl+C to stop all servers"
 echo ""
 
-# Aguardar
 wait

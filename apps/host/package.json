@@ -12,12 +12,13 @@
         "generate": "nuxt generate",
         "preview": "nuxt preview",
         "postinstall": "nuxt prepare",
-        "lint": "eslint .",
-        "lint:fix": "eslint . --fix",
-        "format": "prettier --write \"**/*.{js,ts,vue,json,css,scss,md}\"",
+        "lint": "eslint . --ignore-pattern '.nuxt' --ignore-pattern '.output' --ignore-pattern 'dist'",
+        "lint:fix": "eslint . --fix --ignore-pattern '.nuxt' --ignore-pattern '.output' --ignore-pattern 'dist'",
+        "format": "prettier --write \"**/*.{js,ts,vue,json,css,scss,md}\" --ignore-path ../../.prettierignore",
         "type-check": "vue-tsc --noEmit"
     },
     "dependencies": {
+        "@module-federation/node": "2.7.32",
         "@module-federation/runtime": "2.0.1",
         "nuxt": "3.14.159",
         "vue": "3.5.13"

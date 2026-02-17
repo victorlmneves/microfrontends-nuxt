@@ -22,6 +22,9 @@
         },
         "type-check": {
             "outputs": []
+        },
+        "clean": {
+            "outputs": []
         }
     }
 }

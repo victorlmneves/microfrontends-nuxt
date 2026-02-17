@@ -23,15 +23,8 @@
             "@/*": ["./apps/*/"],
             "#app": ["./node_modules/nuxt/dist/app"]
         },
-        "types": ["node", "@nuxt/types"]
+        "types": ["node"]
     },
-    "include": [
-        "apps/**/*.ts",
-        "apps/**/*.vue",
-        "apps/**/*.d.ts",
-        "packages/**/*.ts",
-        "packages/**/*.vue",
-        "packages/**/*.d.ts"
-    ],
+    "include": ["apps/**/*.ts", "apps/**/*.vue", "apps/**/*.d.ts", "packages/**/*.ts", "packages/**/*.vue", "packages/**/*.d.ts"],
     "exclude": ["node_modules", ".nuxt", ".output", "dist", ".turbo"]
 }

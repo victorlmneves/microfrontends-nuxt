@@ -9,8 +9,8 @@ export default {
     output: {
         path: path.resolve(path.dirname(new URL(import.meta.url).pathname), 'dist'),
         filename: '[name].js',
-        publicPath: 'http://localhost:3002/',
-        clean: true
+        publicPath: 'http://localhost:3001/',
+        clean: false
     },
     resolve: {
         extensions: ['.js', '.ts', '.mjs', '.json', '.vue']
@@ -46,10 +46,10 @@ export default {
     plugins: [
         new VueLoaderPlugin(),
         new ModuleFederationPlugin({
-            name: 'remoteCart',
+            name: 'remoteProducts',
             filename: 'remoteEntry.js',
             exposes: {
-                './ShoppingCart': './components/ShoppingCart.vue'
+                './ProductList': './components/ProductList.vue'
             },
             shared: {
                 vue: { singleton: true, requiredVersion: false }
@@ -62,7 +62,7 @@ export default {
         headers: {
             'Access-Control-Allow-Origin': '*'
         },
-        port: 3002,
+        port: 3001,
         hot: true,
         allowedHosts: 'all',
         static: {

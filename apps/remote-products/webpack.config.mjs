@@ -1,18 +1,15 @@
-import webpackPkg from 'webpack'
-const { container: _container } = webpackPkg
-const { ModuleFederationPlugin } = _container
+import { ModuleFederationPlugin } from '@module-federation/enhanced/webpack'
 import { VueLoaderPlugin } from 'vue-loader'
 import path from 'path'
 
-export default {
+const clientConfig = {
     mode: 'development',
     entry: './app.vue',
     target: 'web',
     output: {
         path: path.resolve(path.dirname(new URL(import.meta.url).pathname), 'dist'),
         filename: '[name].js',
-        library: { type: 'umd', name: 'remoteProducts' },
-        publicPath: 'auto',
+        publicPath: 'http://localhost:3001/',
         clean: true
     },
     resolve: {
@@ -56,7 +53,9 @@ export default {
             },
             shared: {
                 vue: { singleton: true, requiredVersion: false }
-            }
+            },
+            runtimePlugins: [],
+            dts: false
         })
     ],
     devServer: {
@@ -71,3 +70,36 @@ export default {
         }
     }
 }
+
+const ssrConfig = {
+    mode: clientConfig.mode,
+    entry: clientConfig.entry,
+    target: 'node',
+    resolve: clientConfig.resolve,
+    module: clientConfig.module,
+    output: {
+        path: path.resolve(path.dirname(new URL(import.meta.url).pathname), 'dist'),
+        filename: '[name].ssr.js',
+        publicPath: 'http://localhost:3001/',
+        clean: false
+    },
+    plugins: [
+        new VueLoaderPlugin(),
+        new ModuleFederationPlugin({
+            name: 'remoteProducts',
+            filename: 'remoteEntry.ssr.js',
+            exposes: {
+                './ProductList': './components/ProductList.vue'
+            },
+            shared: {
+                vue: { singleton: true, requiredVersion: false }
+            },
+            runtimePlugins: [],
+            dts: false,
+            runtime: false
+        })
+    ]
+    // No devServer for SSR config
+}
+
+export default [clientConfig, ssrConfig]
