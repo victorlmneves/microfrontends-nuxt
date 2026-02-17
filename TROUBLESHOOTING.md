@@ -295,10 +295,10 @@ pnpm add @module-federation/runtime
 
 # For Module Federation build dependencies (in monorepo root)
 cd /Users/victorneves/_code/microfrontends-nuxt
-pnpm add -D @module-federation/vite vite-plugin-top-level-await
+pnpm add -D @module-federation/vite @nuxt/devtools typescript vite-plugin-top-level-await vue-tsc
 ```
 
-> **Note**: In this monorepo setup, `@module-federation/vite` and `vite-plugin-top-level-await` are installed in the root package.json and shared via pnpm workspace hoisting. Individual remotes don't need them in their package.json.
+> **Note**: In this monorepo setup, all development and build tools (`@module-federation/vite`, `vite-plugin-top-level-await`, `@nuxt/devtools`, `typescript`, `vue-tsc`) are installed in the root package.json and shared via pnpm workspace hoisting. Individual apps only declare their runtime dependencies.
 
 ---
 

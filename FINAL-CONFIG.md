@@ -10,7 +10,8 @@ This document describes the **final working setup** for Module Federation with N
 - **Remotes**: Use `@module-federation/vite` 1.10.0 plugin (installed in root)
 - **Pattern**: `getInstance()` → `createInstance()` → `loadRemote()`
 - **Key**: `shared: {}` must be empty (critical!)
-- **Dependencies**: Module Federation packages in root package.json for monorepo efficiency
+- **Dependencies**: All dev/build tools in root package.json for monorepo efficiency
+- **App packages**: Only declare runtime dependencies (`nuxt`, `vue`)
 
 ---
 
@@ -115,11 +116,14 @@ onMounted(() => loadRemoteComponent())
 ```json
 {
     "@module-federation/vite": "1.10.0",
-    "vite-plugin-top-level-await": "1.6.0"
+    "@nuxt/devtools": "2.6.4",
+    "typescript": "5.6.3",
+    "vite-plugin-top-level-await": "1.6.0",
+    "vue-tsc": "2.1.10"
 }
 ```
 
-> **Note**: In this monorepo setup, Module Federation build dependencies are installed in the root package.json and shared across all remotes via pnpm workspace hoisting. Individual remote packages only need Nuxt core dependencies.
+> **Note**: In this monorepo setup, all development and build tools are installed in the root package.json and shared across all apps via pnpm workspace hoisting. Individual remote packages only declare their runtime dependencies (`nuxt`, `vue`).
 
 **Configuration (`nuxt.config.ts`):**
 

@@ -29,18 +29,13 @@ Create `apps/remote-reviews/package.json`:
         "postinstall": "nuxt prepare"
     },
     "dependencies": {
-        "nuxt": "3.14.159",
+        "nuxt": "3.19.0",
         "vue": "3.5.13"
-    },
-    "devDependencies": {
-        "@nuxt/devtools": "1.6.4",
-        "typescript": "5.6.3",
-        "vue-tsc": "2.1.10"
     }
 }
 ```
 
-> **Note**: `@module-federation/vite` and `vite-plugin-top-level-await` are installed in the root package.json and shared via pnpm workspace hoisting. You don't need to add them to individual remote packages.
+> **Note**: Development and build tools (`@module-federation/vite`, `vite-plugin-top-level-await`, `@nuxt/devtools`, `typescript`, `vue-tsc`) are installed in the root package.json and shared via pnpm workspace hoisting. Individual remotes only need to declare their runtime dependencies (`nuxt`, `vue`).
 
 ````
 
