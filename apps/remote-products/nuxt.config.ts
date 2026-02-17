@@ -10,6 +10,22 @@ export default defineNuxtConfig({
 
     ssr: true,
 
+    nitro: {
+        static: true
+    },
+
+    routeRules: {
+        '/remoteEntry.js': {
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Content-Type': 'application/javascript'
+            }
+        },
+        '/_nuxt/**': {
+            headers: { 'Access-Control-Allow-Origin': '*' }
+        }
+    },
+
     app: {
         baseURL: '/'
     },
@@ -28,8 +44,7 @@ export default defineNuxtConfig({
                     exposes: {
                         './ProductList': './components/ProductList.vue'
                     },
-                    shared: {},
-                    runtimePlugins: []
+                    shared: {}
                 }),
                 TopAwait()
             )

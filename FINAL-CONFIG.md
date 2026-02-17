@@ -7,9 +7,10 @@ This document describes the **final working setup** for Module Federation with N
 ## Quick Summary
 
 - **Host**: Uses `@module-federation/runtime` (no Vite plugin)
-- **Remotes**: Use `@module-federation/vite` 1.10.0 plugin
+- **Remotes**: Use `@module-federation/vite` 1.10.0 plugin (installed in root)
 - **Pattern**: `getInstance()` → `createInstance()` → `loadRemote()`
 - **Key**: `shared: {}` must be empty (critical!)
+- **Dependencies**: Module Federation packages in root package.json for monorepo efficiency
 
 ---
 
@@ -18,45 +19,49 @@ This document describes the **final working setup** for Module Federation with N
 ### Host Application (Consumer)
 
 **Dependencies:**
+
 ```json
 {
-  "@module-federation/runtime": "2.0.1"
+    "@module-federation/runtime": "2.0.1"
 }
 ```
 
 **Configuration (`nuxt.config.ts`):**
+
 ```typescript
 export default defineNuxtConfig({
-  ssr: false,
-  vite: {
-    server: { cors: true },
-    optimizeDeps: {
-      exclude: ['@module-federation/runtime'],
-    },
-  },
+    ssr: false,
+    vite: {
+        server: { cors: true },
+        optimizeDeps: {
+            exclude: ['@module-federation/runtime']
+        }
+    }
 })
 ```
 
 **Runtime Plugin (`plugins/01.mf-runtime.client.ts`):**
+
 ```typescript
 import { getInstance, createInstance } from '@module-federation/runtime'
 
 export default defineNuxtPlugin(() => {
-  let instance = getInstance()
-  
-  if (!instance) {
-    instance = createInstance({
-      name: 'host',
-      remotes: [
-        { name: 'remoteProducts', entry: 'http://localhost:3001/remoteEntry.js' },
-        { name: 'remoteCart', entry: 'http://localhost:3002/remoteEntry.js' },
-      ],
-    })
-  }
+    let instance = getInstance()
+
+    if (!instance) {
+        instance = createInstance({
+            name: 'host',
+            remotes: [
+                { name: 'remoteProducts', entry: 'http://localhost:3001/remoteEntry.js' },
+                { name: 'remoteCart', entry: 'http://localhost:3002/remoteEntry.js' }
+            ]
+        })
+    }
 })
 ```
 
 **Component Usage (`pages/products.vue`):**
+
 ```vue
 <script setup lang="ts">
 import { getInstance, createInstance } from '@module-federation/runtime'
@@ -67,35 +72,37 @@ const error = ref<string | null>(null)
 const isLoading = ref(true)
 
 const loadRemoteComponent = async () => {
-  try {
-    let instance = getInstance()
-    
-    if (!instance) {
-      instance = createInstance({
-        name: 'host',
-        remotes: [{
-          name: 'remoteProducts',
-          entry: 'http://localhost:3001/remoteEntry.js',
-        }],
-      })
+    try {
+        let instance = getInstance()
+
+        if (!instance) {
+            instance = createInstance({
+                name: 'host',
+                remotes: [
+                    {
+                        name: 'remoteProducts',
+                        entry: 'http://localhost:3001/remoteEntry.js'
+                    }
+                ]
+            })
+        }
+
+        const module = await instance.loadRemote('remoteProducts/ProductList')
+        RemoteProductList.value = (module as any).default || module
+        isLoading.value = false
+    } catch (e) {
+        error.value = e instanceof Error ? e.message : 'Load failed'
+        isLoading.value = false
     }
-    
-    const module = await instance.loadRemote('remoteProducts/ProductList')
-    RemoteProductList.value = (module as any).default || module
-    isLoading.value = false
-  } catch (e) {
-    error.value = e instanceof Error ? e.message : 'Load failed'
-    isLoading.value = false
-  }
 }
 
 onMounted(() => loadRemoteComponent())
 </script>
 
 <template>
-  <div v-if="isLoading">Loading...</div>
-  <div v-else-if="error">Error: {{ error }}</div>
-  <component v-else-if="RemoteProductList" :is="RemoteProductList" />
+    <div v-if="isLoading">Loading...</div>
+    <div v-else-if="error">Error: {{ error }}</div>
+    <component v-else-if="RemoteProductList" :is="RemoteProductList" />
 </template>
 ```
 
@@ -103,56 +110,61 @@ onMounted(() => loadRemoteComponent())
 
 ### Remote Applications (Providers)
 
-**Dependencies:**
+**Dependencies** (installed in root package.json):
+
 ```json
 {
-  "@module-federation/vite": "1.10.0",
-  "vite-plugin-top-level-await": "latest"
+    "@module-federation/vite": "1.10.0",
+    "vite-plugin-top-level-await": "1.6.0"
 }
 ```
 
+> **Note**: In this monorepo setup, Module Federation build dependencies are installed in the root package.json and shared across all remotes via pnpm workspace hoisting. Individual remote packages only need Nuxt core dependencies.
+
 **Configuration (`nuxt.config.ts`):**
+
 ```typescript
 import { federation } from '@module-federation/vite'
 import TopAwait from 'vite-plugin-top-level-await'
 
 export default defineNuxtConfig({
-  ssr: false,
-  
-  nitro: {
-    static: true,  // ← Critical!
-  },
-  
-  routeRules: {  // ← Must be at root level!
-    '/remoteEntry.js': { 
-      headers: { 
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/javascript' 
-      } 
+    ssr: false,
+
+    nitro: {
+        static: true // ← Critical!
     },
-    '/_nuxt/**': { 
-      headers: { 'Access-Control-Allow-Origin': '*' } 
+
+    routeRules: {
+        // ← Must be at root level!
+        '/remoteEntry.js': {
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Content-Type': 'application/javascript'
+            }
+        },
+        '/_nuxt/**': {
+            headers: { 'Access-Control-Allow-Origin': '*' }
+        }
     },
-  },
-  
-  hooks: {
-    'vite:extendConfig': (config, { isClient }) => {
-      if (!isClient) return
-      
-      config.plugins = config.plugins || []
-      config.plugins.unshift(
-        federation({
-          name: 'remoteProducts',
-          filename: 'remoteEntry.js',
-          exposes: {
-            './ProductList': './components/ProductList.vue',
-          },
-          shared: {},  // ← Must be empty!
-        }),
-        TopAwait()
-      )
-    },
-  },
+
+    hooks: {
+        'vite:extendConfig': (config, { isClient }) => {
+            if (!isClient) return
+
+            config.plugins = config.plugins || []
+            config.plugins.unshift(
+                federation({
+                    name: 'remoteProducts',
+                    filename: 'remoteEntry.js',
+                    exposes: {
+                        './ProductList': './components/ProductList.vue'
+                    },
+                    shared: {} // ← Must be empty!
+                }),
+                TopAwait()
+            )
+        }
+    }
 })
 ```
 
@@ -198,12 +210,14 @@ pnpm run dev:watch
 ```
 
 **What it does:**
+
 1. Builds remotes (static output)
 2. Serves remotes in preview mode (fast)
 3. Starts host in dev mode (hot reload)
 4. Watches for remote changes and rebuilds
 
 **Advantages:**
+
 - Fast startup (remotes pre-built)
 - Host has full HMR
 - Simulates production for remotes
@@ -235,8 +249,8 @@ Builds and serves everything in production mode.
 2. **CORS at root level**: `routeRules` not inside `nitro`
 3. **Static preset for remotes**: `nitro: { static: true }`
 4. **Copy remoteEntry.js**: After build, copy to `.output/public/`
-5. **Runtime in host only**: `@module-federation/runtime` only in host
-6. **Vite plugin in remotes only**: `@module-federation/vite` only in remotes
+5. **Runtime in host only**: `@module-federation/runtime` only in host package.json
+6. **Vite plugin in root**: `@module-federation/vite` and `vite-plugin-top-level-await` in root package.json (shared via pnpm workspace)
 
 ### ❌ Don't Do
 
@@ -253,12 +267,14 @@ Builds and serves everything in production mode.
 ### Remote Not Loading
 
 **Check:**
+
 1. Is remote running? → http://localhost:3001
 2. Is remoteEntry.js accessible? → http://localhost:3001/remoteEntry.js
 3. Does it return JavaScript (not HTML)?
 4. Check browser console for CORS/network errors
 
 **Common fixes:**
+
 - Ensure build script copied remoteEntry.js
 - Verify CORS headers in `routeRules`
 - Check remote is in preview/dev mode
@@ -268,6 +284,7 @@ Builds and serves everything in production mode.
 **Problem:** Component not loading correctly
 
 **Fix:**
+
 ```typescript
 // Use both patterns
 const component = (module as any).default || module
@@ -278,10 +295,11 @@ const component = (module as any).default || module
 **Problem:** Browser blocks cross-origin requests
 
 **Fix in remote's `nuxt.config.ts`:**
+
 ```typescript
 routeRules: {  // At root level!
-  '/remoteEntry.js': { 
-    headers: { 'Access-Control-Allow-Origin': '*' } 
+  '/remoteEntry.js': {
+    headers: { 'Access-Control-Allow-Origin': '*' }
   },
 }
 ```
@@ -289,13 +307,20 @@ routeRules: {  // At root level!
 ### App Crashes When Adding Shared Dependencies
 
 **Problem:** App fails with shared config like:
+
 ```typescript
-shared: { vue: { singleton: true } }  // ❌ Causes crashes
+shared: {
+    vue: {
+        singleton: true
+    }
+} // ❌ Causes crashes
 ```
 
 **Fix:** Use empty object:
+
 ```typescript
-shared: {}  // ✅ Works
+shared: {
+} // ✅ Works
 ```
 
 ### remoteEntry.js Returns HTML (404 page)
@@ -311,8 +336,8 @@ shared: {}  // ✅ Works
 Before starting development:
 
 - [ ] All dependencies installed (`pnpm install`)
-- [ ] `@module-federation/runtime` in host only
-- [ ] `@module-federation/vite` in remotes only
+- [ ] `@module-federation/runtime` in host package.json
+- [ ] `@module-federation/vite` + `vite-plugin-top-level-await` in root package.json
 - [ ] All `shared: {}` configs are empty
 - [ ] `nitro.static: true` in all remotes
 - [ ] `routeRules` at root level (not in nitro)
@@ -342,19 +367,19 @@ apps/
 │   │   ├── products.vue                    # Loads remoteProducts
 │   │   └── cart.vue                        # Loads remoteCart
 │   ├── nuxt.config.ts                      # No MF Vite plugin
-│   └── package.json                        # @module-federation/runtime
+│   └── package.json                        # @module-federation/runtime only
 │
 ├── remote-products/
 │   ├── components/
 │   │   └── ProductList.vue                 # Exposed component
-│   ├── nuxt.config.ts                      # MF Vite plugin + CORS
-│   └── package.json                        # @module-federation/vite
+│   ├── nuxt.config.ts                      # Uses MF from root via workspace
+│   └── package.json                        # Nuxt core dependencies only
 │
 └── remote-cart/
     ├── components/
     │   └── ShoppingCart.vue                # Exposed component
-    ├── nuxt.config.ts                      # MF Vite plugin + CORS
-    └── package.json                        # @module-federation/vite
+    ├── nuxt.config.ts                      # Uses MF from root via workspace
+    └── package.json                        # Nuxt core dependencies only
 ```
 
 ---
@@ -396,6 +421,7 @@ apps/
 ## Summary
 
 This setup provides:
+
 - ✅ True runtime loading (no build-time coupling)
 - ✅ Independent deployability
 - ✅ Standalone remote apps

@@ -33,11 +33,16 @@ Create `apps/remote-reviews/package.json`:
         "vue": "3.5.13"
     },
     "devDependencies": {
-        "@module-federation/vite": "1.0.10",
-        "@nuxt/devtools": "1.6.4"
+        "@nuxt/devtools": "1.6.4",
+        "typescript": "5.6.3",
+        "vue-tsc": "2.1.10"
     }
 }
 ```
+
+> **Note**: `@module-federation/vite` and `vite-plugin-top-level-await` are installed in the root package.json and shared via pnpm workspace hoisting. You don't need to add them to individual remote packages.
+
+````
 
 **Important**: Choose a unique port (3003 in this case).
 
@@ -52,9 +57,9 @@ import federation from '@module-federation/vite'
 export default defineNuxtConfig({
     compatibilityDate: '2024-04-03',
     devtools: { enabled: true },
-    
+
     ssr: false,
-    
+
     vite: {
         plugins: [
             federation({
@@ -77,7 +82,7 @@ export default defineNuxtConfig({
         }
     }
 })
-```
+````
 
 ### Step 4: Create the Component
 
@@ -119,16 +124,10 @@ const renderStars = (rating: number): string => {
 
 <template>
     <div class="reviews-list">
-        <div class="remote-badge">
-            ⭐ Remote: Reviews Microfrontend
-        </div>
-        
+        <div class="remote-badge">⭐ Remote: Reviews Microfrontend</div>
+
         <div class="reviews-container">
-            <div
-                v-for="review in reviews"
-                :key="review.id"
-                class="review-card"
-            >
+            <div v-for="review in reviews" :key="review.id" class="review-card">
                 <div class="review-header">
                     <h3 class="author-name">{{ review.author }}</h3>
                     <span class="review-date">{{ review.date }}</span>
@@ -143,68 +142,68 @@ const renderStars = (rating: number): string => {
 </template>
 
 <style scoped>
-    .reviews-list {
-        width: 100%;
-    }
+.reviews-list {
+    width: 100%;
+}
 
-    .remote-badge {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        color: white;
-        padding: 0.75rem 1.5rem;
-        border-radius: 25px;
-        display: inline-block;
-        margin-bottom: 2rem;
-        font-weight: 600;
-        box-shadow: 0 4px 6px rgba(240, 147, 251, 0.3);
-    }
+.remote-badge {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    display: inline-block;
+    margin-bottom: 2rem;
+    font-weight: 600;
+    box-shadow: 0 4px 6px rgba(240, 147, 251, 0.3);
+}
 
-    .reviews-container {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-    }
+.reviews-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
 
-    .review-card {
-        background: white;
-        border-radius: 12px;
-        padding: 1.5rem;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        transition: transform 0.3s ease;
-    }
+.review-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
 
-    .review-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
-    }
+.review-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+}
 
-    .review-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0.75rem;
-    }
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
 
-    .author-name {
-        margin: 0;
-        color: #333;
-        font-size: 1.2rem;
-    }
+.author-name {
+    margin: 0;
+    color: #333;
+    font-size: 1.2rem;
+}
 
-    .review-date {
-        color: #888;
-        font-size: 0.9rem;
-    }
+.review-date {
+    color: #888;
+    font-size: 0.9rem;
+}
 
-    .rating {
-        font-size: 1.5rem;
-        margin-bottom: 1rem;
-    }
+.rating {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
 
-    .review-comment {
-        color: #555;
-        line-height: 1.6;
-        margin: 0;
-    }
+.review-comment {
+    color: #555;
+    line-height: 1.6;
+    margin: 0;
+}
 </style>
 ```
 
@@ -223,7 +222,7 @@ Create `apps/remote-reviews/app.vue`:
             <h1>⭐ Reviews Microfrontend</h1>
             <p>This is a standalone remote application</p>
         </header>
-        
+
         <main class="remote-main">
             <ReviewsList />
         </main>
@@ -231,33 +230,33 @@ Create `apps/remote-reviews/app.vue`:
 </template>
 
 <style scoped>
-    .remote-app {
-        min-height: 100vh;
-        background: #f8f9fa;
-    }
+.remote-app {
+    min-height: 100vh;
+    background: #f8f9fa;
+}
 
-    .remote-header {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        color: white;
-        padding: 2rem;
-        text-align: center;
-    }
+.remote-header {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    padding: 2rem;
+    text-align: center;
+}
 
-    .remote-header h1 {
-        margin: 0 0 0.5rem 0;
-        font-size: 2rem;
-    }
+.remote-header h1 {
+    margin: 0 0 0.5rem 0;
+    font-size: 2rem;
+}
 
-    .remote-header p {
-        margin: 0;
-        opacity: 0.9;
-    }
+.remote-header p {
+    margin: 0;
+    opacity: 0.9;
+}
 
-    .remote-main {
-        padding: 2rem;
-        max-width: 1200px;
-        margin: 0 auto;
-    }
+.remote-main {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
 </style>
 ```
 
@@ -272,9 +271,9 @@ import federation from '@module-federation/vite'
 export default defineNuxtConfig({
     compatibilityDate: '2024-04-03',
     devtools: { enabled: true },
-    
+
     ssr: false,
-    
+
     vite: {
         plugins: [
             federation({
@@ -332,14 +331,15 @@ Update `apps/host/app.vue`:
                 <NuxtLink to="/">Home</NuxtLink>
                 <NuxtLink to="/products">Products</NuxtLink>
                 <NuxtLink to="/cart">Cart</NuxtLink>
-                <NuxtLink to="/reviews">Reviews</NuxtLink> <!-- ADD THIS -->
+                <NuxtLink to="/reviews">Reviews</NuxtLink>
+                <!-- ADD THIS -->
             </nav>
         </header>
-        
+
         <main class="app-main">
             <NuxtPage />
         </main>
-        
+
         <footer class="app-footer">
             <p>&copy; 2024 Microfrontends Demo</p>
         </footer>
@@ -370,7 +370,7 @@ const RemoteReviewsList = defineAsyncComponent(() =>
     <div class="reviews-page">
         <h2>Product Reviews</h2>
         <p class="info">This component is loaded from the remote Reviews microfrontend</p>
-        
+
         <Suspense>
             <template #default>
                 <RemoteReviewsList />
@@ -385,45 +385,45 @@ const RemoteReviewsList = defineAsyncComponent(() =>
 </template>
 
 <style scoped>
-    .reviews-page h2 {
-        color: #333;
-        margin-bottom: 1rem;
-    }
+.reviews-page h2 {
+    color: #333;
+    margin-bottom: 1rem;
+}
 
-    .info {
-        background: #fce4ec;
-        padding: 1rem;
-        border-radius: 4px;
-        border-left: 4px solid #f06292;
-        margin-bottom: 2rem;
-        color: #880e4f;
-    }
+.info {
+    background: #fce4ec;
+    padding: 1rem;
+    border-radius: 4px;
+    border-left: 4px solid #f06292;
+    margin-bottom: 2rem;
+    color: #880e4f;
+}
 
-    .loading {
-        text-align: center;
-        padding: 3rem;
-        color: #666;
-        font-size: 1.2rem;
-    }
+.loading {
+    text-align: center;
+    padding: 3rem;
+    color: #666;
+    font-size: 1.2rem;
+}
 
-    .loading::after {
-        content: '';
-        display: inline-block;
-        width: 20px;
-        height: 20px;
-        border: 3px solid #f093fb;
-        border-top-color: transparent;
-        border-radius: 50%;
-        margin-left: 10px;
-        animation: spin 1s linear infinite;
-        vertical-align: middle;
-    }
+.loading::after {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #f093fb;
+    border-top-color: transparent;
+    border-radius: 50%;
+    margin-left: 10px;
+    animation: spin 1s linear infinite;
+    vertical-align: middle;
+}
 
-    @keyframes spin {
-        to {
-            transform: rotate(360deg);
-        }
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
     }
+}
 </style>
 ```
 
@@ -444,6 +444,7 @@ npm run dev
 ```
 
 You should now see:
+
 - Host: http://localhost:3000
 - Products: http://localhost:3001
 - Cart: http://localhost:3002
@@ -468,30 +469,30 @@ Visit http://localhost:3000/reviews to see the new microfrontend in action!
 ## Best Practices
 
 1. **Port Management**: Use a consistent port numbering scheme
-   - Host: 3000
-   - First remote: 3001
-   - Second remote: 3002
-   - Third remote: 3003, etc.
+    - Host: 3000
+    - First remote: 3001
+    - Second remote: 3002
+    - Third remote: 3003, etc.
 
 2. **Naming Conventions**:
-   - App name: `remote-{feature}`
-   - Remote name: `remote{Feature}` (camelCase)
-   - Package name: `@microfrontends/remote-{feature}`
+    - App name: `remote-{feature}`
+    - Remote name: `remote{Feature}` (camelCase)
+    - Package name: `@microfrontends/remote-{feature}`
 
 3. **Component Exposure**:
-   - Only expose what's necessary
-   - Use clear, descriptive names
-   - Document what each exposed component does
+    - Only expose what's necessary
+    - Use clear, descriptive names
+    - Document what each exposed component does
 
 4. **Error Handling**:
-   - Always wrap remote imports in try-catch
-   - Provide meaningful fallback UI
-   - Log errors for debugging
+    - Always wrap remote imports in try-catch
+    - Provide meaningful fallback UI
+    - Log errors for debugging
 
 5. **Testing**:
-   - Test each remote standalone first
-   - Test integration with host
-   - Test error scenarios (remote down, network issues)
+    - Test each remote standalone first
+    - Test integration with host
+    - Test error scenarios (remote down, network issues)
 
 ## Production Considerations
 
