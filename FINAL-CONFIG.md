@@ -2,14 +2,15 @@
 
 ## ✅ Working Configuration
 
-This document describes the **final working setup** for Module Federation with Nuxt 3.
+This document describes the **final working setup** for Module Federation with Nuxt 3 using **Webpack 5** and **@module-federation/enhanced**.
 
 ## Quick Summary
 
-- **Host**: Uses `@module-federation/runtime` (no Vite plugin)
-- **Remotes**: Use `@module-federation/vite` 1.10.0 plugin
-- **Pattern**: `getInstance()` → `createInstance()` → `loadRemote()`
-- **Key**: `shared: {}` must be empty (critical!)
+- **Host**: Uses `@module-federation/runtime` with Webpack builder
+- **Remotes**: Use `@module-federation/enhanced/webpack` plugin
+- **Pattern**: Client-only loading via `loadRemoteComponentUniversal()` in `onMounted()`
+- **SSR**: Enabled on host, but remotes load only on client
+- **Key**: Use enhanced plugin for compatibility with runtime API
 
 ---
 
@@ -18,45 +19,71 @@ This document describes the **final working setup** for Module Federation with N
 ### Host Application (Consumer)
 
 **Dependencies:**
+
 ```json
 {
-  "@module-federation/runtime": "2.0.1"
+    "dependencies": {
+        "@module-federation/runtime": "2.0.1",
+        "@module-federation/node": "2.7.32",
+        "nuxt": "3.14.159",
+        "vue": "3.5.13"
+    },
+    "devDependencies": {
+        "@nuxt/webpack-builder": "4.3.1"
+    }
 }
 ```
 
 **Configuration (`nuxt.config.ts`):**
+
 ```typescript
 export default defineNuxtConfig({
-  ssr: false,
-  vite: {
-    server: { cors: true },
-    optimizeDeps: {
-      exclude: ['@module-federation/runtime'],
+    ssr: true,
+    builder: 'webpack',
+
+    webpack: {
+        externals: {
+            '@module-federation/node': 'commonjs @module-federation/node'
+        }
     },
-  },
+
+    vite: {
+        server: { cors: true }
+    }
 })
 ```
 
-**Runtime Plugin (`plugins/01.mf-runtime.client.ts`):**
-```typescript
-import { getInstance, createInstance } from '@module-federation/runtime'
+**Utility Loader (`utils/loadRemoteUniversal.ts`):**
 
-export default defineNuxtPlugin(() => {
-  let instance = getInstance()
-  
-  if (!instance) {
-    instance = createInstance({
-      name: 'host',
-      remotes: [
-        { name: 'remoteProducts', entry: 'http://localhost:3001/remoteEntry.js' },
-        { name: 'remoteCart', entry: 'http://localhost:3002/remoteEntry.js' },
-      ],
-    })
-  }
-})
+```typescript
+export async function loadRemoteComponentUniversal(
+    remoteName: string,
+    remoteEntry: string,
+    exposedModule: string
+): Promise<Record<string, unknown>> {
+    if (typeof window === 'undefined') {
+        throw new Error('This loader is client-only')
+    }
+
+    const runtime = await import('@module-federation/runtime')
+    let instance = runtime.getInstance()
+
+    if (!instance) {
+        instance = runtime.createInstance({
+            name: 'host',
+            remotes: [{ name: remoteName, entry: remoteEntry }]
+        })
+    } else {
+        instance.registerRemotes([{ name: remoteName, entry: remoteEntry }])
+    }
+
+    const module = await instance.loadRemote(`${remoteName}/${exposedModule}`)
+    return module.default || module
+}
 ```
 
 **Component Usage (`pages/products.vue`):**
+
 ```vue
 <script setup lang="ts">
 import { getInstance, createInstance } from '@module-federation/runtime'
@@ -67,35 +94,37 @@ const error = ref<string | null>(null)
 const isLoading = ref(true)
 
 const loadRemoteComponent = async () => {
-  try {
-    let instance = getInstance()
-    
-    if (!instance) {
-      instance = createInstance({
-        name: 'host',
-        remotes: [{
-          name: 'remoteProducts',
-          entry: 'http://localhost:3001/remoteEntry.js',
-        }],
-      })
+    try {
+        let instance = getInstance()
+
+        if (!instance) {
+            instance = createInstance({
+                name: 'host',
+                remotes: [
+                    {
+                        name: 'remoteProducts',
+                        entry: 'http://localhost:3001/remoteEntry.js'
+                    }
+                ]
+            })
+        }
+
+        const module = await instance.loadRemote('remoteProducts/ProductList')
+        RemoteProductList.value = (module as any).default || module
+        isLoading.value = false
+    } catch (e) {
+        error.value = e instanceof Error ? e.message : 'Load failed'
+        isLoading.value = false
     }
-    
-    const module = await instance.loadRemote('remoteProducts/ProductList')
-    RemoteProductList.value = (module as any).default || module
-    isLoading.value = false
-  } catch (e) {
-    error.value = e instanceof Error ? e.message : 'Load failed'
-    isLoading.value = false
-  }
 }
 
 onMounted(() => loadRemoteComponent())
 </script>
 
 <template>
-  <div v-if="isLoading">Loading...</div>
-  <div v-else-if="error">Error: {{ error }}</div>
-  <component v-else-if="RemoteProductList" :is="RemoteProductList" />
+    <div v-if="isLoading">Loading...</div>
+    <div v-else-if="error">Error: {{ error }}</div>
+    <component v-else-if="RemoteProductList" :is="RemoteProductList" />
 </template>
 ```
 
@@ -104,116 +133,123 @@ onMounted(() => loadRemoteComponent())
 ### Remote Applications (Providers)
 
 **Dependencies:**
+
 ```json
 {
-  "@module-federation/vite": "1.10.0",
-  "vite-plugin-top-level-await": "latest"
+    "dependencies": {
+        "nuxt": "3.14.159",
+        "vue": "3.5.13"
+    },
+    "devDependencies": {
+        "@module-federation/enhanced": "^2.0.1",
+        "webpack": "5.91.0",
+        "vue-loader": "^17",
+        "ts-loader": "9.5.4",
+        "sass-loader": "16.0.7"
+    }
 }
 ```
 
-**Configuration (`nuxt.config.ts`):**
-```typescript
-import { federation } from '@module-federation/vite'
-import TopAwait from 'vite-plugin-top-level-await'
+**Webpack Configuration (`webpack.client.mjs`):**
 
-export default defineNuxtConfig({
-  ssr: false,
-  
-  nitro: {
-    static: true,  // ← Critical!
-  },
-  
-  routeRules: {  // ← Must be at root level!
-    '/remoteEntry.js': { 
-      headers: { 
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/javascript' 
-      } 
+```javascript
+import { ModuleFederationPlugin } from '@module-federation/enhanced/webpack'
+import { VueLoaderPlugin } from 'vue-loader'
+import path from 'path'
+
+export default {
+    mode: 'development',
+    entry: './app.vue',
+    target: 'web',
+    output: {
+        path: path.resolve(path.dirname(new URL(import.meta.url).pathname), 'dist'),
+        filename: '[name].js',
+        publicPath: 'http://localhost:3001/',
+        clean: false
     },
-    '/_nuxt/**': { 
-      headers: { 'Access-Control-Allow-Origin': '*' } 
+    resolve: {
+        extensions: ['.js', '.ts', '.mjs', '.json', '.vue']
     },
-  },
-  
-  hooks: {
-    'vite:extendConfig': (config, { isClient }) => {
-      if (!isClient) return
-      
-      config.plugins = config.plugins || []
-      config.plugins.unshift(
-        federation({
-          name: 'remoteProducts',
-          filename: 'remoteEntry.js',
-          exposes: {
-            './ProductList': './components/ProductList.vue',
-          },
-          shared: {},  // ← Must be empty!
-        }),
-        TopAwait()
-      )
+    module: {
+        rules: [
+            { test: /\.vue$/, loader: 'vue-loader' },
+            { test: /\.(ts|tsx)$/, loader: 'ts-loader', options: { transpileOnly: true }, exclude: /node_modules/ },
+            { test: /\.m?js$/, type: 'javascript/auto' },
+            { test: /\.scss$/, use: ['vue-style-loader', 'css-loader', 'sass-loader'] }
+        ]
     },
-  },
-})
+    plugins: [
+        new VueLoaderPlugin(),
+        new ModuleFederationPlugin({
+            name: 'remoteProducts',
+            filename: 'remoteEntry.js',
+            exposes: {
+                './ProductList': './components/ProductList.vue'
+            },
+            shared: {
+                vue: { singleton: true, requiredVersion: false }
+            },
+            dts: false
+        })
+    ],
+    devServer: {
+        port: 3001,
+        hot: true,
+        headers: { 'Access-Control-Allow-Origin': '*' },
+        allowedHosts: 'all'
+    }
+}
+```
+
+**Package.json scripts:**
+
+```json
+{
+    "scripts": {
+        "dev:webpack": "webpack serve --config webpack.client.mjs --port 3001",
+        "build:webpack": "webpack --config webpack.client.mjs"
+    }
+}
 ```
 
 ---
 
 ## Build Process
 
-### Build Script (`build-all.sh`)
+### Development Mode
+
+**Start all servers:**
 
 ```bash
-#!/bin/bash
-
-# Build remotes
-echo "Building remote-products..."
-cd apps/remote-products && pnpm build
-
-# Copy remoteEntry.js to public output
-cp .nuxt/dist/client/remoteEntry.js .output/public/
-
-echo "Building remote-cart..."
-cd ../remote-cart && pnpm build
-cp .nuxt/dist/client/remoteEntry.js .output/public/
-
-# Build host
-echo "Building host..."
-cd ../host && pnpm build
-
-echo "✅ All builds complete!"
+./dev-all.sh
+# or
+pnpm run dev:all
 ```
 
-### Why Copy remoteEntry.js?
+**What happens:**
 
-Nuxt's Nitro with `static: true` serves from `.output/public/`, but Module Federation outputs to `.nuxt/dist/client/`. The copy ensures the entry file is accessible.
+1. Remote Products: `webpack serve` on port 3001 (HMR enabled)
+2. Remote Cart: `webpack serve` on port 3002 (HMR enabled)
+3. Host: `nuxt dev` on port 3000 (SSR + client-side federation)
 
----
+**How it works:**
 
-## Development Workflow
+- Remotes serve `remoteEntry.js` from webpack-dev-server in-memory
+- Host loads remotes dynamically on client-side via `@module-federation/runtime`
+- SSR renders loading state, client loads actual components
 
-### Recommended: Hybrid Mode
+### Production Build
 
 ```bash
-pnpm run dev:watch
+pnpm run build:all
 ```
 
-**What it does:**
-1. Builds remotes (static output)
-2. Serves remotes in preview mode (fast)
-3. Starts host in dev mode (hot reload)
-4. Watches for remote changes and rebuilds
+**Build steps:**
 
-**Advantages:**
-- Fast startup (remotes pre-built)
-- Host has full HMR
-- Simulates production for remotes
-- Best for daily development
-
-### Alternative: Full Dev Mode
-
-```bash
-pnpm run dev
-```
+1. Remotes: `webpack --config webpack.client.mjs` → `dist/remoteEntry.js`
+2. Host: `nuxt build` → `.output/`
+3. Deploy remotes to CDN/static hosting
+4. Update remote URLs in host configuration
 
 All apps in dev mode with hot reload (slower startup).
 
@@ -253,12 +289,14 @@ Builds and serves everything in production mode.
 ### Remote Not Loading
 
 **Check:**
+
 1. Is remote running? → http://localhost:3001
 2. Is remoteEntry.js accessible? → http://localhost:3001/remoteEntry.js
 3. Does it return JavaScript (not HTML)?
 4. Check browser console for CORS/network errors
 
 **Common fixes:**
+
 - Ensure build script copied remoteEntry.js
 - Verify CORS headers in `routeRules`
 - Check remote is in preview/dev mode
@@ -268,6 +306,7 @@ Builds and serves everything in production mode.
 **Problem:** Component not loading correctly
 
 **Fix:**
+
 ```typescript
 // Use both patterns
 const component = (module as any).default || module
@@ -278,10 +317,11 @@ const component = (module as any).default || module
 **Problem:** Browser blocks cross-origin requests
 
 **Fix in remote's `nuxt.config.ts`:**
+
 ```typescript
 routeRules: {  // At root level!
-  '/remoteEntry.js': { 
-    headers: { 'Access-Control-Allow-Origin': '*' } 
+  '/remoteEntry.js': {
+    headers: { 'Access-Control-Allow-Origin': '*' }
   },
 }
 ```
@@ -289,13 +329,20 @@ routeRules: {  // At root level!
 ### App Crashes When Adding Shared Dependencies
 
 **Problem:** App fails with shared config like:
+
 ```typescript
-shared: { vue: { singleton: true } }  // ❌ Causes crashes
+shared: {
+    vue: {
+        singleton: true
+    }
+} // ❌ Causes crashes
 ```
 
 **Fix:** Use empty object:
+
 ```typescript
-shared: {}  // ✅ Works
+shared: {
+} // ✅ Works
 ```
 
 ### remoteEntry.js Returns HTML (404 page)
@@ -396,6 +443,7 @@ apps/
 ## Summary
 
 This setup provides:
+
 - ✅ True runtime loading (no build-time coupling)
 - ✅ Independent deployability
 - ✅ Standalone remote apps

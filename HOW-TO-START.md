@@ -4,32 +4,44 @@ There are multiple ways to start the development servers. Choose the one that wo
 
 ---
 
-## ✅ Recommended: Direct Command
+## ✅ Recommended: Shell Script
 
 This is the simplest and most reliable method:
 
+### Linux/macOS:
+
 ```bash
-pnpm run dev
+chmod +x dev-all.sh
+./dev-all.sh
 ```
 
-**That's it!** This command starts all three applications.
+### Or use pnpm:
+
+```bash
+pnpm run dev:all
+```
+
+**That's it!** This command starts all three applications with webpack dev servers.
 
 ---
 
 ## 🐧 Linux/macOS: Using Shell Script
 
 ### Option 1: Make executable and run
+
 ```bash
 chmod +x start.sh
 ./start.sh
 ```
 
 ### Option 2: Run with sh
+
 ```bash
 sh start.sh
 ```
 
 ### Option 3: Run with bash
+
 ```bash
 bash start.sh
 ```
@@ -39,21 +51,25 @@ bash start.sh
 ## 🪟 Windows: Multiple Options
 
 ### Option 1: Direct command (recommended)
+
 ```cmd
 pnpm run dev
 ```
 
 ### Option 2: Batch script
+
 ```cmd
 start.bat
 ```
 
 ### Option 3: PowerShell script
+
 ```powershell
 .\start.ps1
 ```
 
 **Note:** If PowerShell blocks the script, run:
+
 ```powershell
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 .\start.ps1
@@ -63,13 +79,16 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 ## 🎯 What Happens When You Start
 
-When you run `pnpm run dev`, Turborepo:
+When you run `./dev-all.sh` or `pnpm run dev:all`:
 
-1. **Starts Host App** on port 3000
-2. **Starts Products Remote** on port 3001
-3. **Starts Cart Remote** on port 3002
+1. **Starts Remote Products** (Webpack) on port 3001
+2. **Starts Remote Cart** (Webpack) on port 3002
+3. **Starts Host App** (Nuxt) on port 3000
 
-All three run **simultaneously** in development mode with hot module replacement (HMR).
+All three run **simultaneously**:
+
+- Remotes: Webpack dev server with HMR
+- Host: Nuxt dev server with SSR + client-side federation
 
 ---
 
@@ -78,16 +97,16 @@ All three run **simultaneously** in development mode with hot module replacement
 Once started, open your browser:
 
 - **Host Application**: http://localhost:3000
-  - Main app with navigation
-  - Consumes remote microfrontends
+    - Main app with navigation
+    - Consumes remote microfrontends
 
 - **Products Remote**: http://localhost:3001
-  - Standalone products app
-  - Runs independently
+    - Standalone products app
+    - Runs independently
 
 - **Cart Remote**: http://localhost:3002
-  - Standalone cart app
-  - Runs independently
+    - Standalone cart app
+    - Runs independently
 
 ---
 
@@ -98,6 +117,7 @@ Press `Ctrl + C` in the terminal where the apps are running.
 If apps don't stop cleanly, you can force kill them:
 
 ### Linux/macOS:
+
 ```bash
 # Kill processes on ports 3000-3002
 lsof -ti:3000 | xargs kill -9
@@ -106,6 +126,7 @@ lsof -ti:3002 | xargs kill -9
 ```
 
 ### Windows:
+
 ```cmd
 # Kill processes on ports 3000-3002
 netstat -ano | findstr :3000
@@ -121,18 +142,21 @@ netstat -ano | findstr :3002
 If you want to run apps separately:
 
 ### Terminal 1: Host App
+
 ```bash
 cd apps/host
 pnpm run dev
 ```
 
 ### Terminal 2: Products Remote
+
 ```bash
 cd apps/remote-products
 pnpm run dev
 ```
 
 ### Terminal 3: Cart Remote
+
 ```bash
 cd apps/remote-cart
 pnpm run dev
@@ -147,6 +171,7 @@ pnpm run dev
 ### Error: "command not found: pnpm"
 
 **Solution:** Install pnpm first
+
 ```bash
 npm install -g pnpm
 ```
@@ -154,6 +179,7 @@ npm install -g pnpm
 ### Error: "Port already in use"
 
 **Solution:** Kill the process using the port
+
 ```bash
 # Linux/macOS
 lsof -ti:3000 | xargs kill -9
@@ -166,6 +192,7 @@ taskkill /PID <PID> /F
 ### Error: "Cannot find module"
 
 **Solution:** Reinstall dependencies
+
 ```bash
 rm -rf node_modules apps/*/node_modules
 pnpm install
@@ -174,6 +201,7 @@ pnpm install
 ### Error: Module Federation errors
 
 **Solution:** Clear Nuxt cache
+
 ```bash
 rm -rf apps/*/.nuxt
 pnpm run dev
@@ -208,6 +236,7 @@ Most changes will hot-reload automatically, but if you need to restart:
 2. Run `pnpm run dev` again
 
 Clear cache if changes don't appear:
+
 ```bash
 rm -rf apps/*/.nuxt
 pnpm run dev
